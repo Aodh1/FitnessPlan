@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import datetime
+import os
 
 # Set page configuration
 st.set_page_config(
@@ -10,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for polished mobile styling
+# Custom CSS for mobile styling
 st.markdown("""
     <style>
     .main-header {
@@ -20,13 +21,6 @@ st.markdown("""
         color: white;
         text-align: center;
         margin-bottom: 20px;
-    }
-    .metric-card {
-        background-color: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        padding: 12px;
-        text-align: center;
     }
     .stButton>button {
         width: 100%;
@@ -63,26 +57,26 @@ st.markdown("""
 # App Navigation Tabs
 tab1, tab2, tab3, tab4 = st.tabs(["🏋️ Log Workout", "📈 Log Milestones", "📊 History", "🥗 Plan Overview"])
 
-# Exercise Graphic Links Mapping
-exercise_graphics = {
-    "Dumbbell Overhead Shoulder Press": "https://commons.wikimedia.org/wiki/File:Dumbbell-Overhead-Shoulder-Press.gif",
-    "Lateral Raises (DB or Cable)": "https://commons.wikimedia.org/wiki/File:Side-Lateral-Raise.gif",
-    "Incline DB Chest Press": "https://commons.wikimedia.org/wiki/File:Incline-Dumbbell-Press.gif",
-    "Seated Cable Row / Pulldown": "https://commons.wikimedia.org/wiki/File:Seated-Cable-Row.gif",
-    "Standing Bicep Curls": "https://commons.wikimedia.org/wiki/File:Dumbbell-Bicep-Curl.gif",
-    "Triceps Rope Pushdowns": "https://commons.wikimedia.org/wiki/File:Triceps-Rope-Pushdown.gif",
-    "Leg Press or Goblet Squat": "https://commons.wikimedia.org/wiki/File:Leg-Press.gif",
-    "Romanian Deadlifts (RDL)": "https://commons.wikimedia.org/wiki/File:Barbell-Romanian-Deadlift.gif",
-    "Lying / Seated Leg Curls": "https://commons.wikimedia.org/wiki/File:Lying-Leg-Curl.gif",
-    "Captain's Chair Knee Raises": "https://commons.wikimedia.org/wiki/File:Hanging-Knee-Raise.gif",
-    "Plank Hold": "https://commons.wikimedia.org/wiki/File:Plank.gif",
-    "Incline Treadmill Walk": "https://commons.wikimedia.org/wiki/File:Treadmill-Walking.gif",
-    "Dumbbell Arnold Press": "https://commons.wikimedia.org/wiki/File:Arnold-Press.gif",
-    "Cable Face Pulls": "https://commons.wikimedia.org/wiki/File:Cable-Face-Pull.gif",
-    "Dumbbell Hammer Curls": "https://commons.wikimedia.org/wiki/File:Hammer-Curl.gif",
-    "Overhead DB Tricep Extension": "https://commons.wikimedia.org/wiki/File:Overhead-Triceps-Extension.gif",
-    "Ab Cable / Machine Crunches": "https://commons.wikimedia.org/wiki/File:Cable-Crunch.gif",
-    "Weighted Russian Twists": "https://commons.wikimedia.org/wiki/File:Russian-Twist.gif"
+# Mapping Exercises to Local JPEG Filenames
+image_mapping = {
+    "Dumbbell Overhead Shoulder Press": "shoulder_press.jpg",
+    "Lateral Raises (DB or Cable)": "lateral_raises.jpg",
+    "Incline DB Chest Press": "incline_press.jpg",
+    "Seated Cable Row / Pulldown": "cable_row.jpg",
+    "Standing Bicep Curls": "bicep_curls.jpg",
+    "Triceps Rope Pushdowns": "tricep_pushdown.jpg",
+    "Leg Press or Goblet Squat": "goblet_squat.jpg",
+    "Romanian Deadlifts (RDL)": "rdl.jpg",
+    "Lying / Seated Leg Curls": "leg_curls.jpg",
+    "Captain's Chair Knee Raises": "knee_raises.jpg",
+    "Plank Hold": "plank.jpg",
+    "Incline Treadmill Walk": "treadmill.jpg",
+    "Dumbbell Arnold Press": "arnold_press.jpg",
+    "Cable Face Pulls": "face_pulls.jpg",
+    "Dumbbell Hammer Curls": "hammer_curls.jpg",
+    "Overhead DB Tricep Extension": "tricep_extension.jpg",
+    "Ab Cable / Machine Crunches": "cable_crunches.jpg",
+    "Weighted Russian Twists": "russian_twists.jpg"
 }
 
 # Routine Mapping
@@ -130,19 +124,26 @@ with tab1:
     for ex in exercises:
         st.markdown(f"### **{ex}**")
         
-        # Link to Graphic
-        graphic_url = exercise_graphics.get(ex, "#")
-        st.markdown(f"🖼️ **[View Exercise Form Guide & Graphic]({graphic_url})**")
+        # Determine local image path
+        filename = image_mapping.get(ex, "")
+        image_path = os.path.join("images", filename)
+        
+        # Check if local image exists and display
+        with st.expander(f"🖼️ View Exercise Graphic ({ex})"):
+            if os.path.exists(image_path) and filename != "":
+                st.image(image_path, caption=f"Form Guide: {ex}", use_container_width=True)
+            else:
+                st.info(f"Save image to `images/{filename}` to display here.")
         
         c1, c2, c3 = st.columns(3)
         with c1:
-            s1 = st.text_input(f"Set 1 (e.g. 14kg x 10)", key=f"{ex}_s1")
+            s1 = st.text_input("Set 1 (kg/reps)", key=f"{ex}_s1")
         with c2:
-            s2 = st.text_input(f"Set 2", key=f"{ex}_s2")
+            s2 = st.text_input("Set 2", key=f"{ex}_s2")
         with c3:
-            s3 = st.text_input(f"Set 3", key=f"{ex}_s3")
+            s3 = st.text_input("Set 3", key=f"{ex}_s3")
             
-        ex_notes = st.text_input(f"Notes / Form feel", key=f"{ex}_notes")
+        ex_notes = st.text_input("Notes / Form feel", key=f"{ex}_notes")
         st.markdown("<br>", unsafe_allow_html=True)
         
         logged_data.append({
